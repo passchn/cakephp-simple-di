@@ -35,13 +35,13 @@ return [
         'services' => [
             NewsletterService::class => NewsletterServiceFactory::class,
             CheckoutService::class => CheckoutServiceFactory::class,
-            PaymentService::class => PaymentServiceFactory::class,
+            PaymentService::class => fn () => new PaymentService(),
         ],
     ],
 ];
 ```
 
-Services should be Invokables. It is best to implement `\SimpleDI\Module\DI\InvokableFactoryInterface`.
+Factories should be Invokables or class-strings of Invokables. It is best to implement `\SimpleDI\Module\DI\InvokableFactoryInterface`.
 
 You can then use the Service e.g. in Controller Actions: 
 
