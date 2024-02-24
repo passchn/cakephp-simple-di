@@ -29,15 +29,15 @@ readonly class ServiceFactoryManager
      */
     protected function createServices(ContainerInterface $container): void
     {
-        foreach ($this->factories as $serviceClass => $factoryClass) {
-            $this->addService($container, $serviceClass, $factoryClass);
+        foreach ($this->factories as $serviceClass => $factory) {
+            $this->addService($container, $serviceClass, $factory);
         }
     }
 
     /**
      * @throws ServiceNotCreated
      */
-    protected function addService(ContainerInterface $container, string $serviceClass, string $factoryClass): void
+    protected function addService(ContainerInterface $container, string $serviceClass, string|callable $factory): void
     {
         if (!class_exists($serviceClass) && !interface_exists($serviceClass)) {
             throw new ServiceNotCreated(
@@ -45,22 +45,24 @@ readonly class ServiceFactoryManager
             );
         }
 
-        if (!class_exists($factoryClass)) {
+        $isCallableFactory = is_callable($factory);
+        if (!$isCallableFactory && !class_exists($factory)) {
             throw new ServiceNotCreated(
-                sprintf('Factory class %s does not exist.', $factoryClass)
+                sprintf('Factory class %s does not exist.', $factory)
             );
         }
 
-        $container->add(
-            $serviceClass,
-            fn() => $this->createAndInvokeFactory($container, $serviceClass, $factoryClass)
-        );
+        $callableFactory = $isCallableFactory
+            ? $factory
+            : fn() => $this->createServiceWithFactory($container, $serviceClass, $factory);
+
+        $container->add($serviceClass, $callableFactory);
     }
 
     /**
      * @throws ServiceNotCreated
      */
-    protected function createAndInvokeFactory(ContainerInterface $container, string $serviceClass, string $factoryClass): object
+    protected function createServiceWithFactory(ContainerInterface $container, string $serviceClass, string $factoryClass): object
     {
         try {
             $factory = new $factoryClass();
