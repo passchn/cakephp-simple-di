@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace SimpleDI\Module\ServiceLocator;
 
-use Cake\Core\ContainerInterface as CakeContainerInterface;
-use Psr\Container\ContainerInterface as PsrContainerInterface;
+use Cake\Core\ContainerInterface;
 
 /**
  * The ServiceLocator pattern is an Anti-Pattern.
@@ -19,18 +18,18 @@ use Psr\Container\ContainerInterface as PsrContainerInterface;
  */
 class ServiceLocator
 {
-    protected static ?PsrContainerInterface $instance = null;
+    protected static ?ContainerInterface $instance = null;
 
-    public static function getContainer(): PsrContainerInterface
+    public static function getContainer(): ContainerInterface
     {
-        if (static::$instance instanceof PsrContainerInterface) {
+        if (static::$instance instanceof ContainerInterface) {
             return static::$instance;
         }
 
         throw new \LogicException('container instance was not set');
     }
 
-    public static function setContainer(CakeContainerInterface $container): void
+    public static function setContainer(ContainerInterface $container): void
     {
         static::$instance = $container;
     }
