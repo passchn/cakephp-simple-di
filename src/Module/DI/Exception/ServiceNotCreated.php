@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace SimpleDI\Module\DI\Service\Exception;
+namespace Passchn\SimpleDI\Module\DI\Exception;
 
 class ServiceNotCreated extends \Exception
 {

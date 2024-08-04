@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace SimpleDI\Module\ServiceLocator;
+namespace Passchn\SimpleDI\Module\ServiceLocator;
 
 use Cake\Core\ContainerInterface;
 

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace SimpleDI;
+namespace Passchn\SimpleDI;
 
 use Cake\Console\CommandCollection;
 use Cake\Core\BasePlugin;
@@ -9,7 +9,7 @@ use Cake\Core\ContainerInterface;
 use Cake\Core\PluginApplicationInterface;
 use Cake\Http\MiddlewareQueue;
 use Cake\Routing\RouteBuilder;
-use SimpleDI\Module\ServiceLocator\ServiceLocator;
+use Passchn\SimpleDI\Module\ServiceLocator\ServiceLocator;
 
 /**
  * Plugin for SimpleDI

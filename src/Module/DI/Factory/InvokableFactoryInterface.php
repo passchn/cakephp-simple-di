@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace SimpleDI\Module\DI;
+namespace Passchn\SimpleDI\Module\DI\Factory;
 
 use Cake\Core\ContainerInterface;
 
