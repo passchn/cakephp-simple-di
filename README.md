@@ -13,7 +13,7 @@ composer require passchn/cakephp-simple-di
 Load the plugin:
 
 ```sh
-bin/cake plugin load SimpleDI
+bin/cake plugin load Passchn/SimpleDI
 ```
 
 ## Usage
@@ -24,16 +24,18 @@ In your `Application.php`:
 public function services(ContainerInterface $container): void
 {
     Configure::load('app_di');
-
-    $di = new DIManager([
-        ServiceFactoryManager::class => Configure::readOrFail('DI.services'),
-    ]);
-
-    $di->addDependencies($container);
+    
+    DIManager::create($container)
+        // to add individual services: 
+        ->addServices(Configure::readOrFail('DI.services'))
+        // to collect multiple services: 
+        ->addModules(Configure::readOrFail('DI.modules')) 
+        // a plugin can define multiple modules: 
+        ->addPlugin(SomePlugin::class); 
 }
 ```
 
-Then, define Factories in your `app_di.php`:
+Then, define Factories/Modules in your `app_di.php`:
 
 ```php
 return [
@@ -43,12 +45,14 @@ return [
             CheckoutService::class => CheckoutServiceFactory::class,
             PaymentService::class => fn () => new PaymentService(),
         ],
+        'modules' => [
+            MyModule::class,
+        ],
     ],
 ];
 ```
 
-Factories should be Invokables or class-strings of Invokables. It is best to
-implement `\SimpleDI\Module\DI\InvokableFactoryInterface`.
+Factories should be Invokables or class-strings of Invokables. 
 
 You can then use the Service e.g. in Controller Actions:
 
