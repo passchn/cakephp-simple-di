@@ -8,6 +8,7 @@ use Cake\Core\ContainerInterface;
 use Passchn\SimpleDI\Module\DI\Exception\ServiceNotCreated;
 use Passchn\SimpleDI\Module\DI\Factory\InvokableFactoryInterface;
 use Passchn\SimpleDI\Module\Module\ModuleInterface;
+use Passchn\SimpleDI\Module\Plugin\PluginInterface;
 
 readonly class DIManager
 {
@@ -32,6 +33,20 @@ readonly class DIManager
     {
         foreach ($services as $serviceClass => $factory) {
             $this->addService($serviceClass, $factory);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param class-string<PluginInterface> $plugin
+     * @return $this
+     * @throws ServiceNotCreated
+     */
+    public function addPlugin(string $plugin): static
+    {
+        foreach ($plugin::modules() as $module) {
+            $this->addModule($module);
         }
 
         return $this;
