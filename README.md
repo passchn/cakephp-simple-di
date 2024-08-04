@@ -69,8 +69,7 @@ class ExamplesController {
 If real DI is not possible, e.g. in ViewCells, you can use the `ServiceLocator` to receive the container or Services.
 
 ```php
-\SimpleDI\Module\ServiceLocator\ServiceLocator::getContainer(); // the container instance
-\SimpleDI\Module\ServiceLocator\ServiceLocator::get(NewsletterService::class); // the service
+Passchn\SimpleDI\Module\ServiceLocator\ServiceLocator::get(NewsletterService::class); // the service
 ```
 
 This only works if you loaded the plugin or registered the container yourself, e.g.:
