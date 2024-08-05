@@ -39,6 +39,20 @@ readonly class DIManager
     }
 
     /**
+     * @param list<class-string<PluginInterface>> $plugins
+     * @return $this
+     * @throws ServiceNotCreated
+     */
+    public function addPlugins(array $plugins): static
+    {
+        foreach ($plugins as $plugin) {
+            $this->addPlugin($plugin);
+        }
+
+        return $this;
+    }
+
+    /**
      * @param class-string<PluginInterface> $plugin
      * @return $this
      * @throws ServiceNotCreated
