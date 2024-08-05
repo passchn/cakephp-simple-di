@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Passchn\SimpleDI\Module\ServiceLocator;
 
 use Cake\Core\ContainerInterface;
-use Passchn\SimpleDI\Module\ServiceLocator\Exception\ContainerAlreadySet;
 use Passchn\SimpleDI\Module\ServiceLocator\Exception\ContainerNotSet;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -26,14 +25,7 @@ class ServiceLocator
 
     public static function setContainer(ContainerInterface $container): void
     {
-        if (static::$instance === null) {
-            static::$instance = $container;
-            return;
-        }
-
-        throw new ContainerAlreadySet(
-            'The ServiceLocator has already bee registered.'
-        );
+        static::$instance = $container;
     }
 
     /**
