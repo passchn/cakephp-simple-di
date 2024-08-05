@@ -28,9 +28,15 @@ public function services(ContainerInterface $container): void
     DIManager::create($container)
         // to add individual services: 
         ->addServices(Configure::readOrFail('DI.services'))
-        // to collect multiple services: 
+        /**
+        * to collect multiple services, define a module: 
+        * @see \Passchn\SimpleDI\Module\Module\ModuleInterface
+        */
         ->addModules(Configure::readOrFail('DI.modules')) 
-        // a plugin can define multiple modules: 
+        /**
+        * a plugin can define multiple modules: 
+        * @see \Passchn\SimpleDI\Module\Plugin\PluginInterface
+        */
         ->addPlugin(SomePlugin::class); 
 }
 ```
