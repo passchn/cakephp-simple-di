@@ -6,9 +6,12 @@ namespace Passchn\SimpleDI\Module\DI;
 
 use Cake\Core\ContainerInterface;
 use Passchn\SimpleDI\Module\DI\Exception\ServiceNotCreated;
+use Passchn\SimpleDI\Module\DI\Factory\AbstractFactoryInterface;
+use Passchn\SimpleDI\Module\DI\Factory\FactoryInterface;
 use Passchn\SimpleDI\Module\DI\Factory\InvokableFactoryInterface;
 use Passchn\SimpleDI\Module\Module\ModuleInterface;
 use Passchn\SimpleDI\Module\Plugin\PluginInterface;
+use ReflectionClass;
 
 readonly class DIManager
 {
@@ -25,7 +28,7 @@ readonly class DIManager
     /**
      * Maps service classes to their factories
      *
-     * @param array<class-string, class-string<InvokableFactoryInterface>|callable> $services
+     * @param array<class-string, class-string<FactoryInterface>|callable> $services
      * @return $this
      * @throws ServiceNotCreated
      */
@@ -94,7 +97,7 @@ readonly class DIManager
 
     /**
      * @param class-string $serviceClass
-     * @param class-string<InvokableFactoryInterface>|callable $factory
+     * @param class-string<FactoryInterface>|callable $factory
      * @return $this
      * @throws ServiceNotCreated
      */
@@ -106,16 +109,24 @@ readonly class DIManager
             );
         }
 
-        $callableFactory = is_callable($factory)
-            ? $factory
-            : fn() => $this->createServiceWithFactory($this->container, $serviceClass, $factory);
+        if (is_callable($factory)) {
+            $this->container->add($serviceClass, $factory);
+            return $this;
+        }
 
-        $this->container->add($serviceClass, $callableFactory);
+        $this->container->add(
+            $serviceClass,
+            fn() => $this->createServiceWithFactory($this->container, $serviceClass, $factory),
+        );
 
         return $this;
     }
 
     /**
+     * @template T
+     * @param class-string<T> $serviceClass
+     * @param class-string<FactoryInterface> $factoryClass
+     * @return T
      * @throws ServiceNotCreated
      */
     protected function createServiceWithFactory(ContainerInterface $container, string $serviceClass, string $factoryClass): object
@@ -135,14 +146,7 @@ readonly class DIManager
             );
         }
 
-        try {
-            $service = $factory($container);
-        } catch (\Throwable $throwable) {
-            throw new ServiceNotCreated(
-                sprintf('Error while invoking factory %s: %s', $factoryClass, $throwable->getMessage()),
-                previous: $throwable,
-            );
-        }
+        $service = $this->createByFactoryInterface($container, $factory, $serviceClass);
 
         if (!is_a($service, $serviceClass)) {
             throw new ServiceNotCreated(
@@ -156,5 +160,37 @@ readonly class DIManager
         }
 
         return $service;
+    }
+
+    /**
+     * @template T of object
+     * @param class-string<T> $serviceClass
+     * @return T
+     * @throws ServiceNotCreated
+     */
+    protected function createByFactoryInterface(ContainerInterface $container, FactoryInterface $factory, string $serviceClass): object
+    {
+        $reflection = new ReflectionClass($factory);
+
+        if ($reflection->implementsInterface(AbstractFactoryInterface::class)) {
+            /**
+             * @var AbstractFactoryInterface $factory
+             */
+            return $factory(
+                $container,
+                [
+                    'requestedClass' => $serviceClass,
+                ],
+            );
+        }
+
+        if ($reflection->implementsInterface(InvokableFactoryInterface::class) || $reflection->implementsInterface(FactoryInterface::class)) {
+            /**
+             * @var InvokableFactoryInterface $factory
+             */
+            return $factory($container);
+        }
+
+        throw new ServiceNotCreated('invalid factory given');
     }
 }
