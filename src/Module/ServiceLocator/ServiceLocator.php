@@ -44,6 +44,24 @@ class ServiceLocator
      * @template T
      * @param class-string<T> $id
      * @return T
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerExceptionInterface
+     */
+    public static function resolveInstance(string $className, ?string $id = null)
+    {
+        $instance = static::getContainer()->get($id ?? $className);
+
+        if (!is_a($instance, $className, true)) {
+            throw new \RuntimeException('Instance is not of the expected class');
+        }
+
+        return $instance;
+    }
+
+    /**
+     * @template T
+     * @param class-string<T> $id
+     * @return T
      */
     public static function getNew(string $id)
     {

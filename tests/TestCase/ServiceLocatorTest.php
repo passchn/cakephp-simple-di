@@ -6,11 +6,15 @@ namespace TestCase;
 
 use Cake\Core\Container;
 use Cake\TestSuite\TestCase;
+use Passchn\SimpleDI\Module\DI\Exception\ServiceNotCreated;
 use Passchn\SimpleDI\Module\ServiceLocator\Exception\ContainerNotSet;
 use Passchn\SimpleDI\Module\ServiceLocator\ServiceLocator;
+use Passchn\SimpleDI\Tests\Stub\AnotherTestClass;
 use Passchn\SimpleDI\Tests\Stub\TestClass;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\UsesClass;
+use RuntimeException;
 
 #[CoversClass(ServiceLocator::class)]
 #[UsesClass(Container::class)]
@@ -31,6 +35,17 @@ class ServiceLocatorTest extends TestCase
         $someValue = ServiceLocator::get('someKey');
 
         self::assertEquals('someValue', $someValue);
+    }
+
+    public function testResolveInstance(): void
+    {
+        $container = $this->createContainer();
+        ServiceLocator::setContainer($container);
+
+        $container->add(TestClass::class, fn () => new AnotherTestClass('I am a wrong instance'));
+
+        self::expectException(RuntimeException::class);
+        ServiceLocator::resolveInstance(TestClass::class);
     }
 
     public function testHas(): void
