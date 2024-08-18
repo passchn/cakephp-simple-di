@@ -23,8 +23,12 @@ class ServiceLocator
 {
     protected static ?ContainerInterface $instance = null;
 
-    public static function setContainer(ContainerInterface $container): void
+    public static function setContainer(ContainerInterface $container, bool $forceReset = true): void
     {
+        if (!$forceReset && static::$instance instanceof ContainerInterface) {
+            return;
+        }
+
         static::$instance = $container;
     }
 
