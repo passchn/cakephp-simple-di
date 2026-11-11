@@ -131,13 +131,17 @@ readonly class DIManager
      */
     protected function createServiceWithFactory(ContainerInterface $container, string $serviceClass, string $factoryClass): object
     {
-        try {
-            $factory = new $factoryClass();
-        } catch (\Throwable $throwable) {
-            throw new ServiceNotCreated(
-                sprintf('Could not create factory %s', $factoryClass),
-                previous: $throwable,
-            );
+        if ($container->has($factoryClass)) {
+            $factory = $container->get($factoryClass);
+        } else {
+            try {
+                $factory = new $factoryClass();
+            } catch (\Throwable $throwable) {
+                throw new ServiceNotCreated(
+                    sprintf('Could not create factory %s', $factoryClass),
+                    previous: $throwable,
+                );
+            }
         }
 
         if (!is_callable($factory)) {
